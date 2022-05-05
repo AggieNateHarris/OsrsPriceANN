@@ -11,6 +11,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.ensemble import AdaBoostRegressor
 import pickle
 import numpy as np
+import matplotlib.pyplot as plt
 
 # *************************************************************
 # /////////////////////////////////////////////////////////////
@@ -148,7 +149,7 @@ def getHistoricPrices(numOfTimePoints, interval=21600):
 
 def getItemPrice(itemId, numOfTimePoints, interval=21600):
     epoch_time = int((time.time() / SIXH))
-    epoch_time = str(1645088400 - interval) #str(epoch_time * SIXH)
+    epoch_time = str(1642950000 - interval) #str(epoch_time * SIXH)
     namesMapping = pd.read_csv('MappingData.csv')
     index = namesMapping.index[namesMapping['id'] == itemId].tolist()
     itemName = ""
@@ -181,7 +182,7 @@ def getItemPrice(itemId, numOfTimePoints, interval=21600):
     finalDf['name'] = itemName
     finalDf = finalDf.reindex(columns=['timestamp', 'avgHighPrice', 'avgLowPrice', 'highPriceVolume', 'lowPriceVolume', 'name'])
     # finalDf = finalDf.T
-    finalDf.to_csv(itemName + '.csv', index=False)
+    finalDf.to_csv(itemName + '2.csv', index=False)
 
 def getTimeSeries(itemId, timestep='6h'):
     r = requests.get(ITEMTIMESERIES + timestep + '&id=' + str(itemId), headers=headers)
@@ -359,16 +360,16 @@ def main():
     # # getting historic price data
     # getHistoricPrices(40)
 
-    # get specific item price data
-    getItemPrice(10348, 300)
+    # # get specific item price data
+    # getItemPrice(4151, 600)
 
     # # get time series(300) for a specific item
     # getTimeSeries(10348)
 
     # # create ready to go entries for an item, input filenames
-    # createLabeledData(['3rd age platebody.csv', '3rd age platebodyTimeSeries.csv'])
+    # createLabeledData(['Abyssal whip.csv', 'Abyssal whip2.csv', 'Abyssal whipTimeSeries.csv'])
 
-    # # train and test a model on collected data
+    # train and test a model on collected data
     # training_set = pd.read_csv('itemsHistory0.csv')
     # fileNum = 1
     # while exists('itemsHistory' + str(fileNum) + '.csv'):
@@ -376,69 +377,86 @@ def main():
     #     data = [training_set, temp_set]
     #     training_set = pd.concat(data)
     #     fileNum += 1
-    #
-    # training_set = pd.read_csv('Abyssal whipRdy.csv')
-    #
-    # training_set = training_set.dropna()
-    # print("Training set shape: ")
-    # print(training_set.shape)
-    # print(training_set.head())
-    #
-    # train, valid = train_test_split(training_set, test_size=0.2, random_state=42, shuffle=False)
-    # print("Training subset after train-valid split: ")
-    # print(train.shape)
-    # print("Valid subset after train-valid split: ")
-    # print(valid.shape)
-    #
-    # # working_model = RandomForestClassifier(n_estimators=100, max_depth=80, random_state=1)
-    # working_model = AdaBoostRegressor()
-    #
-    # train_X = train.drop('priceIn6H', axis=1)
-    # train_X = train_X.drop('name', axis=1)
-    # valid_X = valid.drop('priceIn6H', axis=1)
-    # valid_X = valid_X.drop('name', axis=1)
-    # train_Y = train['priceIn6H']
-    # valid_Y = valid['priceIn6H']
-    # train_X = train_X.fillna(0)
-    # valid_X = valid_X.fillna(0)
-    # print("train_X head")
-    # print(train_X.head())
-    #
-    # print("Training subset after train-valid split & feature selection: ")
-    # print(train_X.shape)
-    # print(train_Y.shape)
-    # print("Valid subset after train-valid split & feature selection: ")
-    # print(valid_X.shape)
-    # print(valid_Y.shape)
-    #
-    # # Model training and validation
-    # working_model.fit(train_X, train_Y)
-    #
-    # # # set working model to the loaded model if not training
-    # # working_model = loaded_model
-    #
-    # # predictions = working_model.score(valid_X, valid_Y)
-    # # print("Finished training and testing: ")
-    # # print(predictions)
-    #
-    # test_prediction = working_model.predict(valid_X)
-    # success = 0
-    # i = 0
-    # valList = []
-    # for val in valid_X['avgHighPrice']:
-    #     valList.append(val)
-    # for y in valid_Y:
-    #     if abs(test_prediction[i] - y) < 0.01 * valList[i]:
-    #         success += 1
-    #     i += 1
-    # print("Finished testing, results are: ")
-    # print(success / len(test_prediction))
-    #
-    # # Save the model
-    # val = input("Do you want to save the model? Y/N")
-    # if val == "Y":
-    #     with open('best_model.pkl', 'wb') as f:
-    #         pickle.dump(working_model, f)
+
+    training_set = pd.read_csv('Abyssal whipRdy.csv')
+
+    training_set = training_set.dropna()
+    print("Training set shape: ")
+    print(training_set.shape)
+    print(training_set.head())
+
+    train, valid = train_test_split(training_set, test_size=0.2, random_state=42, shuffle=False)
+    print("Training subset after train-valid split: ")
+    print(train.shape)
+    print("Valid subset after train-valid split: ")
+    print(valid.shape)
+
+    # working_model = RandomForestClassifier(n_estimators=100, max_depth=80, random_state=1)
+    working_model = AdaBoostRegressor()
+
+    train_X = train.drop('priceIn6H', axis=1)
+    train_X = train_X.drop('name', axis=1)
+    valid_X = valid.drop('priceIn6H', axis=1)
+    valid_X = valid_X.drop('name', axis=1)
+    train_Y = train['priceIn6H']
+    valid_Y = valid['priceIn6H']
+    train_X = train_X.fillna(0)
+    valid_X = valid_X.fillna(0)
+    print("train_X head")
+    print(train_X.head())
+
+    print("Training subset after train-valid split & feature selection: ")
+    print(train_X.shape)
+    print(train_Y.shape)
+    print("Valid subset after train-valid split & feature selection: ")
+    print(valid_X.shape)
+    print(valid_Y.shape)
+
+    # Model training and validation
+    working_model.fit(train_X, train_Y)
+
+    # # set working model to the loaded model if not training
+    # working_model = loaded_model
+
+    # predictions = working_model.score(valid_X, valid_Y)
+    # print("Finished training and testing: ")
+    # print(predictions)
+
+    test_prediction = working_model.predict(valid_X)
+    success = 0
+    directionSuccess = 0
+    i = 0
+    valList = []
+    for val in valid_X['avgHighPrice']:
+        valList.append(val)
+    for y in valid_Y:
+        if abs(test_prediction[i] - y) < 0.001 * y:
+            success += 1
+        if (test_prediction[i] - valList[i]) >= 0:
+            if (y - valList[i]) >= 0:
+                directionSuccess += 1
+        if (test_prediction[i] - valList[i]) < 0:
+            if (y - valList[i]) < 0:
+                directionSuccess += 1
+        i += 1
+    print("Finished testing, results are: ")
+    print("Price within margin accuracy: {0:.4f}" .format(success / len(test_prediction)))
+    print("Rise/drop directional accuracy: {0:.4f}" .format(directionSuccess / len(test_prediction)))
+    predFrame = pd.DataFrame(test_prediction, valid_X['timestamp'])
+    groundTruthFrame = pd.DataFrame(valid_Y.values, valid_X['timestamp'])
+    plt.title('Prediction & Ground Truth Values')
+    plt.xlabel('Timestamp')
+    plt.ylabel('Gp Price')
+    plt.plot(predFrame, color="Green")
+    plt.plot(groundTruthFrame, color="Blue")
+    plt.legend(['Predictions', 'Ground Truth'])
+    plt.show()
+
+    # Save the model
+    val = input("Do you want to save the model? Y/N")
+    if val == "Y":
+        with open('best_model.pkl', 'wb') as f:
+            pickle.dump(working_model, f)
 
 if __name__ == "__main__":
     main()
