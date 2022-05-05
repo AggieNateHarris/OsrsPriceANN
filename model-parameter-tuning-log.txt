@@ -1,0 +1,7 @@
+randomforestclassifier(n_estimators=100, max_depth=40, random_state=1) - 0.0827 1%
+randomforestclassifier(n_estimators=100, max_depth=60, random_state=1) - 0.7820 10%, 0.0977 1%
+randomforestclassifier(n_estimators=100, max_depth=80, random_state=1) - 0.7594 10%, 0.1278 1%
+randomforestclassifier(n_estimators=100, max_depth=100, random_state=1) - 0.6541 10%, 0.1128 1%
+randomforestclassifier(n_estimators=110, max_depth=80, random_state=1) - 0.7669 10%, 0.1128 1%
+randomforestclassifier(n_estimators=150, max_depth=80, random_state=1) - 0.7218 10%, 0.1128 1%
+AdaBoostRegressor() - 1.0 10% 0.6917 1%
