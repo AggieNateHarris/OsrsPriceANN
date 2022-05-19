@@ -153,7 +153,7 @@ def getItemPrice(itemId, numOfTimePoints, interval=21600):
     # from right now
     epoch_time = int((time.time() / SIXH))
     # cast epoch time to string, use above or a custom time point
-    epoch_time = str(1629990000 - interval) #str(epoch_time * SIXH)
+    epoch_time = str(1621350000 - interval) #str(epoch_time * SIXH)
     namesMapping = pd.read_csv('MappingData.csv')
     index = namesMapping.index[namesMapping['id'] == itemId].tolist()
     itemName = ""
@@ -182,12 +182,12 @@ def getItemPrice(itemId, numOfTimePoints, interval=21600):
                 finalDf = pd.concat(tempDf)
 
         epoch_time = str(int(epoch_time) - interval)
-        sleep(10)
+        sleep(15)
 
     finalDf['name'] = itemName
     finalDf = finalDf.reindex(columns=['timestamp', 'avgHighPrice', 'avgLowPrice', 'highPriceVolume', 'lowPriceVolume', 'name'])
     # finalDf = finalDf.T
-    finalDf.to_csv(itemName + '3.csv', index=False)
+    finalDf.to_csv(itemName + '4.csv', index=False)
 
 def getTimeSeries(itemId, timestep='6h'):
     r = requests.get(ITEMTIMESERIES + timestep + '&id=' + str(itemId), headers=headers)
@@ -425,7 +425,7 @@ def main():
     # to add to a current base of points, check oldest date of base
     # then change the epoch_time to previous point before oldest
     # TODO: automate this as inputs instead of requiring editing function/checking base
-    getItemPrice(4151, 600)
+    # getItemPrice(4151, 400)
     # ------------------------------------------------------------------------------------------
 
 
@@ -443,129 +443,130 @@ def main():
     # create correctly formatted csv file for training and testing from existing data csv files
     # input is a list of csv filenames, files created from
     # previous data gathering functions work here
-    # createLabeledData(['Abyssal whip.csv', 'Abyssal whip2.csv', 'Abyssal whipTimeSeries.csv'])
+    # createLabeledData(['Abyssal whip.csv', 'Abyssal whip2.csv',
+    #                    'Abyssal whip3.csv', 'Abyssal whip4.csv', 'Abyssal whipTimeSeries.csv'])
     # ------------------------------------------------------------------------------------------
 
 
-    # # ------------------------------------------------------------------------------------------
-    # # ----------------------LOADING TRAINING VALIDATION MODEL-----------------------------------
-    # # ------------------------------------------------------------------------------------------
-    # # initial opening and reading method for all item csv files
-    # # training_set = pd.read_csv('itemsHistory0.csv')
-    # # fileNum = 1
-    # # while exists('itemsHistory' + str(fileNum) + '.csv'):
-    # #     temp_set = pd.read_csv('itemsHistory' + str(fileNum) + '.csv')
-    # #     data = [training_set, temp_set]
-    # #     training_set = pd.concat(data)
-    # #     fileNum += 1
-    # # ------------------------------------------------------------------------------------------
-    #
-    # # ------------------------------------------------------------------------------------------
-    # # new method for reading in prepared csv single item csv files
-    # training_set = pd.read_csv('Abyssal whipRdy.csv')
-    # # ------------------------------------------------------------------------------------------
-    #
-    # # ------------------------------------------------------------------------------------------
-    # # clean up data by dropping NA data points
-    # training_set = training_set.dropna()
-    # print("Training set shape: ")
-    # print(training_set.shape)
-    # print(training_set.head())
-    # # ------------------------------------------------------------------------------------------
-    #
-    # # ------------------------------------------------------------------------------------------
-    # # split data into train and validation sets
-    # train, valid = train_test_split(training_set, test_size=0.2, random_state=42, shuffle=False)
-    # print("Training subset after train-valid split: ")
-    # print(train.shape)
-    # print("Valid subset after train-valid split: ")
-    # print(valid.shape)
-    # # ------------------------------------------------------------------------------------------
-    #
-    # # ------------------------------------------------------------------------------------------
-    # # create or choose an existing model that will be used for training/validation
-    # # working_model = RandomForestClassifier(n_estimators=100, max_depth=80, random_state=1)
-    # # working_model = RandomForestRegressor(n_estimators=100, max_depth=80, random_state=1)
-    # working_model = AdaBoostRegressor()
-    # # ------------------------------------------------------------------------------------------
-    #
-    # # ------------------------------------------------------------------------------------------
-    # # drop ground truth in training and validation X
-    # # either drop or 1-hot-encode item name
-    # # set train and valid Y to their respective ground truth
-    # # TODO: More feature selection analysis and implementation
-    # train_X = train.drop('priceIn6H', axis=1)
-    # train_X = train_X.drop('name', axis=1)
-    # valid_X = valid.drop('priceIn6H', axis=1)
-    # valid_X = valid_X.drop('name', axis=1)
-    # train_Y = train['priceIn6H']
-    # valid_Y = valid['priceIn6H']
-    # # fill any NA not dropped as 0
-    # train_X = train_X.fillna(0)
-    # valid_X = valid_X.fillna(0)
-    # print("train_X head")
-    # print(train_X.head())
-    #
-    # print("Training subset after train-valid split & feature selection: ")
-    # print(train_X.shape)
-    # print(train_Y.shape)
-    # print("Valid subset after train-valid split & feature selection: ")
-    # print(valid_X.shape)
-    # print(valid_Y.shape)
-    # # ------------------------------------------------------------------------------------------
-    #
-    # # ------------------------------------------------------------------------------------------
-    # # Model training
-    # working_model.fit(train_X, train_Y)
-    # # ------------------------------------------------------------------------------------------
-    #
-    # # ------------------------------------------------------------------------------------------
-    # # if desired, load a previous model to be used
-    # # with open('best_model.pkl', 'rb') as f:
-    # #     loaded_model = pickle.load(f)
-    # # test_prediction = loaded_model.predict(valid_X)
-    # # ------------------------------------------------------------------------------------------
-    #
-    # # ------------------------------------------------------------------------------------------
-    # # set working model to the loaded model if not training
-    # # working_model = loaded_model
-    # # ------------------------------------------------------------------------------------------
-    #
-    # # ------------------------------------------------------------------------------------------
-    # # given a set of validation X and your trained model,
-    # # produce Y predictions
-    # test_prediction = working_model.predict(valid_X)
-    # # ------------------------------------------------------------------------------------------
-    #
-    # # ------------------------------------------------------------------------------------------
-    # # base built in scoring method, for this application
-    # # this method isn't very good because we don't need to
-    # # be exactly correct down to a single gp, something like
-    # # within 1% or 0.1% of the price is fine
-    # # predictions = working_model.score(valid_X, valid_Y)
-    # # print("Finished training and testing: ")
-    # # print(predictions)
-    # # ------------------------------------------------------------------------------------------
-    #
-    # # ------------------------------------------------------------------------------------------
-    # # give an accuracy score for validation set
-    # # testing predicted Y values against ground truth valid_Y set
-    # # that corresponds to valid_X validation set
-    # # input is validation X set, validation Y set, predicted Y set
-    # # and an errMargin allowed, eg 0.01 means predicted price
-    # # must be within 1% of the actual price to be counted as true
-    # score(valid_X, valid_Y, test_prediction, errMargin=0.01);
-    # # ------------------------------------------------------------------------------------------
-    #
-    # # ------------------------------------------------------------------------------------------
-    # # Save the model if desired
-    # val = input("Do you want to save the model? Y/N")
-    # if val == "Y":
-    #     with open('best_model.pkl', 'wb') as f:
-    #         pickle.dump(working_model, f)
-    # # ------------------------------------------------------------------------------------------
-    # # ---------------------- END LOADING TRAINING VALIDATION MODEL------------------------------
-    # # ------------------------------------------------------------------------------------------
+    # ------------------------------------------------------------------------------------------
+    # ----------------------LOADING TRAINING VALIDATION MODEL-----------------------------------
+    # ------------------------------------------------------------------------------------------
+    # initial opening and reading method for all item csv files
+    # training_set = pd.read_csv('itemsHistory0.csv')
+    # fileNum = 1
+    # while exists('itemsHistory' + str(fileNum) + '.csv'):
+    #     temp_set = pd.read_csv('itemsHistory' + str(fileNum) + '.csv')
+    #     data = [training_set, temp_set]
+    #     training_set = pd.concat(data)
+    #     fileNum += 1
+    # ------------------------------------------------------------------------------------------
+
+    # ------------------------------------------------------------------------------------------
+    # new method for reading in prepared csv single item csv files
+    training_set = pd.read_csv('Abyssal whipRdy.csv')
+    # ------------------------------------------------------------------------------------------
+
+    # ------------------------------------------------------------------------------------------
+    # clean up data by dropping NA data points
+    training_set = training_set.dropna()
+    print("Training set shape: ")
+    print(training_set.shape)
+    print(training_set.head())
+    # ------------------------------------------------------------------------------------------
+
+    # ------------------------------------------------------------------------------------------
+    # split data into train and validation sets
+    train, valid = train_test_split(training_set, test_size=0.2, random_state=42, shuffle=False)
+    print("Training subset after train-valid split: ")
+    print(train.shape)
+    print("Valid subset after train-valid split: ")
+    print(valid.shape)
+    # ------------------------------------------------------------------------------------------
+
+    # ------------------------------------------------------------------------------------------
+    # create or choose an existing model that will be used for training/validation
+    # working_model = RandomForestClassifier(n_estimators=100, max_depth=80, random_state=1)
+    # working_model = RandomForestRegressor(n_estimators=100, max_depth=80, random_state=1)
+    working_model = AdaBoostRegressor()
+    # ------------------------------------------------------------------------------------------
+
+    # ------------------------------------------------------------------------------------------
+    # drop ground truth in training and validation X
+    # either drop or 1-hot-encode item name
+    # set train and valid Y to their respective ground truth
+    # TODO: More feature selection analysis and implementation
+    train_X = train.drop('priceIn6H', axis=1)
+    train_X = train_X.drop('name', axis=1)
+    valid_X = valid.drop('priceIn6H', axis=1)
+    valid_X = valid_X.drop('name', axis=1)
+    train_Y = train['priceIn6H']
+    valid_Y = valid['priceIn6H']
+    # fill any NA not dropped as 0
+    train_X = train_X.fillna(0)
+    valid_X = valid_X.fillna(0)
+    print("train_X head")
+    print(train_X.head())
+
+    print("Training subset after train-valid split & feature selection: ")
+    print(train_X.shape)
+    print(train_Y.shape)
+    print("Valid subset after train-valid split & feature selection: ")
+    print(valid_X.shape)
+    print(valid_Y.shape)
+    # ------------------------------------------------------------------------------------------
+
+    # ------------------------------------------------------------------------------------------
+    # Model training
+    working_model.fit(train_X, train_Y)
+    # ------------------------------------------------------------------------------------------
+
+    # ------------------------------------------------------------------------------------------
+    # if desired, load a previous model to be used
+    # with open('best_model.pkl', 'rb') as f:
+    #     loaded_model = pickle.load(f)
+    # test_prediction = loaded_model.predict(valid_X)
+    # ------------------------------------------------------------------------------------------
+
+    # ------------------------------------------------------------------------------------------
+    # set working model to the loaded model if not training
+    # working_model = loaded_model
+    # ------------------------------------------------------------------------------------------
+
+    # ------------------------------------------------------------------------------------------
+    # given a set of validation X and your trained model,
+    # produce Y predictions
+    test_prediction = working_model.predict(valid_X)
+    # ------------------------------------------------------------------------------------------
+
+    # ------------------------------------------------------------------------------------------
+    # base built in scoring method, for this application
+    # this method isn't very good because we don't need to
+    # be exactly correct down to a single gp, something like
+    # within 1% or 0.1% of the price is fine
+    # predictions = working_model.score(valid_X, valid_Y)
+    # print("Finished training and testing: ")
+    # print(predictions)
+    # ------------------------------------------------------------------------------------------
+
+    # ------------------------------------------------------------------------------------------
+    # give an accuracy score for validation set
+    # testing predicted Y values against ground truth valid_Y set
+    # that corresponds to valid_X validation set
+    # input is validation X set, validation Y set, predicted Y set
+    # and an errMargin allowed, eg 0.01 means predicted price
+    # must be within 1% of the actual price to be counted as true
+    score(valid_X, valid_Y, test_prediction, errMargin=0.005);
+    # ------------------------------------------------------------------------------------------
+
+    # ------------------------------------------------------------------------------------------
+    # Save the model if desired
+    val = input("Do you want to save the model? Y/N")
+    if val == "Y":
+        with open('best_model.pkl', 'wb') as f:
+            pickle.dump(working_model, f)
+    # ------------------------------------------------------------------------------------------
+    # ---------------------- END LOADING TRAINING VALIDATION MODEL------------------------------
+    # ------------------------------------------------------------------------------------------
 
 
 if __name__ == "__main__":
